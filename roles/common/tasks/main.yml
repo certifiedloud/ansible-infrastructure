@@ -1,0 +1,11 @@
+---
+- name: install needed packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items: packages
+
+- name: add all servers to /etc/hosts
+  lineinfile: dest=/etc/hosts state=present regexp="{{ item.name }}" line="{{ item.ip + '    ' + item.name }}" state=present
+  with_items: hosts
+
+
+- include: firewall.yml

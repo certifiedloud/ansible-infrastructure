@@ -1,0 +1,3 @@
+[program:sites]
+command = uwsgi --emperor /var/www/*/config.ini --uid=www-data --gid=www-data
+

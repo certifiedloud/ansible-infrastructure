@@ -1,0 +1,19 @@
+---
+#this applies the config to db servers only
+- name: create mysql master replication server
+  hosts: db-master
+  remote_user: root
+
+  roles:
+    - common
+    - {role: db, mysql_db: none, mysql_users: none, mysql_db_id: 1 }
+
+- name: create mysql slave replication server
+  hosts: db-slave
+  remote_user: root
+
+  roles:
+    - common
+    - {role: db, mysql_db: none, mysql_users: none,
+             mysql_repl_role: slave, mysql_repl_master: mysql1,
+             mysql_db_id: 2, mysql_repl_user: [{name: repl, pass: dbpassword}] }

@@ -1,0 +1,18 @@
+---
+#configure iptables for all hosts
+
+- name: ensure iptables is installed
+  apt: name=iptables state=installed
+
+- name: copy firewall template to server
+  template: src=iptables.rules.j2 dest=/etc/iptables.rules owner=root group=root mode=0644
+
+- name: restore rules from file
+  shell: iptables-restore < /etc/iptables.rules
+
+- name: add entry to rc.local to ensure the rules are restored on boot
+  lineinfile: >
+              dest=/etc/rc.local 
+              insertbefore="exit 0"
+              line="iptables-restore < /etc/iptables.rules"
+              state=present

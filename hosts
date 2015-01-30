@@ -1,0 +1,15 @@
+[webservers]
+web1
+
+[db-master]
+mysql1
+
+[db-slave]
+repl1
+
+[databases:children]
+db-master
+db-slave
+
+[loadbalancers]
+lb1

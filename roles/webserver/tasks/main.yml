@@ -1,0 +1,57 @@
+---
+- name: setup ppa for nodejs
+  apt_repository: repo='ppa:chris-lea/node.js' state=present update_cache=yes
+
+- name: install needed packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items: packages
+
+- name: install less
+  npm: name=less global=yes version=1.4.0 state=present
+
+- name: create admin group
+  group: name=admin state=present
+
+- name: set up ci_user
+  user: name=ci_user comment="continual integration user" groups=admin,www-data 
+
+- name: create /home/ci_user/.pip
+  file: path=/home/ci_user/.pip state=directory owner=ci_user group=www-data
+
+- name: copy pip.conf file to ci_users  homedir
+  template: src=pip.conf dest=/home/ci_user/.pip/pip.conf owner=ci_user group=www-data
+
+- name: copy ci_user private key
+  copy: src=ci_user_id_rsa dest=/home/ci_user/.ssh/id_rsa owner=ci_user group=ci_user mode=0600
+
+- name: copy ci_user authorized keys
+  copy: src=ci_user_authorized_keys dest=/home/ci_user/.ssh/authorized_keys owner=ci_user group=www-data mode=0644
+
+- name: create /root/.pip directory
+  file: path=/root/.pip/ state=directory 
+
+- name: copy pip.conf file to root users home dir
+  template: src=pip.conf dest=/root/.pip/pip.conf
+
+- name: add boto auth config
+  copy: src=boto.cfg dest=/etc/boto.cfg owner=www-data group=www-data mode=0640
+
+- name: copy postfix config template
+  template: src=main.cf dest=/etc/postfix/ owner=root group=root mode=644
+
+- name: ensure proper permissions on /var/www
+  action: file path=/var/www state=directory owner=www-data group=www-data mode=775
+
+- name: symlinks for PIL build
+  file: src={{ item.path }} dest={{ item.dest }} state=link
+  with_items:
+    - { path: '/usr/lib/x86_64-linux-gnu/libfreetype.so', dest: '/usr/lib/libfreetype.so' }
+    - { path: '/usr/lib/x86_64-linux-gnu/libjpeg.so', dest: '/usr/lib/libjpeg.so' }
+    - { path: '/usr/lib/x86_64-linux-gnu/libz.so', dest: '/usr/lib/libz.so' }
+    - { path: '/usr/include/freetype2', dest: '/usr/include/freetype' }
+
+- name: install danemco_fabric
+  pip: name=danemco-fabric state=present
+
+- name: copy supervisor config into place
+  template: src=supervisor_config dest=/etc/supervisor/conf.d/sites.conf

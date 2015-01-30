@@ -1,0 +1,23 @@
+---
+# This playbook deploys the whole application stack in this site.  
+
+- name: apply common configuration to all nodes
+  hosts: all
+  remote_user: root
+
+  roles:
+    - common
+
+- name: configure load balancer(s)
+  hosts: loadbalancers
+  remote_user: root
+
+  roles:
+    - lb
+
+- name: apply configuration to webserver machines
+  hosts: webservers
+  remote_user: root
+
+  roles:
+    - webserver

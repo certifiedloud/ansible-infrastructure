@@ -1,0 +1,10 @@
+---
+#this play applies configurations to webserver machines
+
+- name: apply common configuration to webserver machines
+  hosts: webservers
+  remote_user: root
+
+  roles:
+    - webserver
+    - common

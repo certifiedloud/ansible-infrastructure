@@ -1,0 +1,23 @@
+{# basic firewall for all hosts #}
+#THIS FILE SHOULD NOT BE EDITED BY HAND!
+#EDIT THE ANSIBLE TEMPLATE AND RUN THE PLAYBOOK
+*nat
+:PREROUTING ACCEPT [30:1700]
+:INPUT ACCEPT [29:1632]
+:OUTPUT ACCEPT [26:2140]
+:POSTROUTING ACCEPT [26:2140]
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [103:19389]
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+
+{# open ports specified in group_vars #}
+{% for port in firewall_allowed_tcp_ports %}
+-A INPUT -p tcp -m tcp --dport {{ port }} -j ACCEPT
+{% endfor %}
+
+-A INPUT -j DROP
+COMMIT

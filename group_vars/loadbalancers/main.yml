@@ -1,0 +1,6 @@
+---
+firewall_allowed_tcp_ports:
+  - "22"   #SSH
+  - "5666" #Nagios
+  - "80"   #HTTP
+  - "443"  #HTTPS
